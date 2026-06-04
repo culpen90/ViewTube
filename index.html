@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>ViewTube</title>
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -76,7 +77,7 @@
 
         <form class="search" id="searchForm" role="search">
           <label class="sr-only" for="searchInput">Search</label>
-          <input id="searchInput" type="search" autocomplete="off" placeholder="Search">
+          <input id="searchInput" type="search" autocomplete="off" placeholder="Search or paste YouTube URL">
           <button class="search__button" type="submit" aria-label="Search" title="Search">
             <svg><use href="#icon-search"></use></svg>
           </button>
@@ -126,10 +127,10 @@
 
           <section class="subscription-list" aria-labelledby="subscriptionsTitle">
             <h2 id="subscriptionsTitle">Subscriptions</h2>
-            <button class="channel-link" type="button"><span class="channel-dot sky">LD</span><span>Launch Desk</span></button>
-            <button class="channel-link" type="button"><span class="channel-dot coral">RM</span><span>Recipe Mode</span></button>
-            <button class="channel-link" type="button"><span class="channel-dot lime">PX</span><span>Pixel Quest</span></button>
-            <button class="channel-link" type="button"><span class="channel-dot violet">ST</span><span>Studio Tech</span></button>
+            <button class="channel-link" type="button"><span class="channel-dot sky">SP</span><span>Sony Pictures</span></button>
+            <button class="channel-link" type="button"><span class="channel-dot coral">TM</span><span>The Muppets</span></button>
+            <button class="channel-link" type="button"><span class="channel-dot lime">FC</span><span>freeCodeCamp.org</span></button>
+            <button class="channel-link" type="button"><span class="channel-dot violet">MR</span><span>Mark Rober</span></button>
           </section>
         </aside>
 
@@ -139,7 +140,7 @@
           <section class="feed-header" aria-labelledby="homeTitle">
             <div>
               <h1 id="homeTitle">Home</h1>
-              <p id="resultSummary">Recommended videos</p>
+              <p id="resultSummary">Real YouTube videos</p>
             </div>
             <button class="refresh-button" id="refreshButton" type="button">Refresh</button>
           </section>
@@ -185,13 +186,13 @@
       <div class="watch-drawer__content">
         <div class="watch-main">
           <div class="player" id="watchPlayer">
-            <img id="watchImage" alt="">
-            <div class="player__bar">
-              <span class="player__progress"></span>
-            </div>
-            <button class="player__play" type="button" aria-label="Play">
-              <svg><use href="#icon-play"></use></svg>
-            </button>
+            <iframe
+              id="watchFrame"
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
           </div>
           <h2 id="watchTitle"></h2>
           <div class="watch-meta">
@@ -202,7 +203,7 @@
                 <span id="watchSubscribers"></span>
               </div>
             </div>
-            <button class="subscribe-button" type="button">Subscribe</button>
+            <a class="youtube-link" id="watchYouTubeLink" href="https://www.youtube.com/" target="_blank" rel="noopener">Open on YouTube</a>
           </div>
           <p class="watch-description" id="watchDescription"></p>
         </div>

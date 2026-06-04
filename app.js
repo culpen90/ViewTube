@@ -1,171 +1,198 @@
-const videos = [
+const starterVideos = [
   {
-    id: "studio-desk",
-    title: "Building a creator desk that actually stays clean",
-    channel: "Studio Tech",
-    avatar: "ST",
-    avatarClass: "violet",
-    subscribers: "842K subscribers",
-    views: "1.2M views",
-    age: "2 days ago",
-    duration: "12:48",
-    category: "Tech",
-    thumbnail: "assets/thumbnails/studio-desk.png",
-    description:
-      "A practical desk reset with monitor arms, cable routing, lighting, and storage choices for a quiet video workflow."
-  },
-  {
-    id: "city-food",
-    title: "Late-night street food crawl across five blocks",
-    channel: "Recipe Mode",
-    avatar: "RM",
+    id: "tgbNymZ7vqY",
+    title: "Bohemian Rhapsody | Muppet Music Video | The Muppets",
+    channel: "The Muppets",
+    avatar: "TM",
     avatarClass: "coral",
-    subscribers: "2.1M subscribers",
-    views: "684K views",
-    age: "5 hours ago",
-    duration: "18:06",
-    category: "Food",
-    thumbnail: "assets/thumbnails/city-food.png",
-    description:
-      "A fast route through noodles, skewers, dumplings, and a dessert cart with the cooks who keep the street bright after midnight."
-  },
-  {
-    id: "space-news",
-    title: "What the latest moon mission changes about deep-space travel",
-    channel: "Launch Desk",
-    avatar: "LD",
-    avatarClass: "sky",
-    subscribers: "1.4M subscribers",
-    views: "428K views",
-    age: "1 day ago",
-    duration: "09:31",
-    category: "News",
-    thumbnail: "assets/thumbnails/space-news.png",
-    description:
-      "A clear breakdown of mission hardware, orbital goals, and the engineering questions that come next."
-  },
-  {
-    id: "pixel-run",
-    title: "Speedrunning the neon dungeon with one health bar",
-    channel: "Pixel Quest",
-    avatar: "PX",
-    avatarClass: "lime",
-    subscribers: "517K subscribers",
-    views: "2.9M views",
-    age: "3 weeks ago",
-    duration: "22:19",
-    category: "Gaming",
-    thumbnail: "assets/thumbnails/pixel-run.png",
-    description:
-      "A full run through the hard route with tight movement, risky skips, and a final boss pattern that has almost no margin."
-  },
-  {
-    id: "lofi-live",
-    title: "Lo-fi room beats for focused editing",
-    channel: "Afterhours Audio",
-    avatar: "AA",
-    avatarClass: "violet",
-    subscribers: "3.8M subscribers",
-    views: "8.7K watching",
-    age: "Live now",
-    duration: "LIVE",
+    subscribers: "Official channel",
+    views: "Music video",
+    age: "Official upload",
+    duration: "4:47",
     category: "Music",
-    thumbnail: "assets/thumbnails/lofi-live.png",
-    live: true,
     description:
-      "A continuous low-key set built around soft drums, mellow keys, and clean ambient texture."
+      "The Muppets' official Bohemian Rhapsody music video, served through YouTube's embedded player."
   },
   {
-    id: "mountain-bike",
-    title: "First ride on the ridge trail after the storm",
-    channel: "Trail Signal",
-    avatar: "TS",
+    id: "jNQXAC9IVRw",
+    title: "Me at the zoo",
+    channel: "jawed",
+    avatar: "J",
     avatarClass: "sky",
-    subscribers: "305K subscribers",
-    views: "312K views",
-    age: "6 days ago",
-    duration: "15:42",
-    category: "Sports",
-    thumbnail: "assets/thumbnails/mountain-bike.png",
+    subscribers: "YouTube co-founder",
+    views: "Historic upload",
+    age: "Apr 23, 2005",
+    duration: "0:19",
+    category: "History",
     description:
-      "Fresh dirt, repaired berms, and a full descent from the lookout to the river crossing."
+      "The first video uploaded to YouTube, served through YouTube's embedded player."
   },
   {
-    id: "coffee-review",
-    title: "Can a compact espresso setup beat a cafe machine?",
-    channel: "Bench Review",
-    avatar: "BR",
-    avatarClass: "coral",
-    subscribers: "219K subscribers",
-    views: "96K views",
-    age: "12 hours ago",
-    duration: "14:07",
-    category: "Reviews",
-    thumbnail: "assets/thumbnails/coffee-review.png",
-    description:
-      "A side-by-side test of grind consistency, pressure, milk texture, cleanup, and the cup you get at the end."
-  },
-  {
-    id: "train-travel",
-    title: "A window seat through the mountain pass",
-    channel: "Slow Route",
-    avatar: "SR",
+    id: "bMknfKXIFA8",
+    title: "React Course - Beginner's Tutorial for React JavaScript Library [2022]",
+    channel: "freeCodeCamp.org",
+    avatar: "FC",
     avatarClass: "lime",
-    subscribers: "691K subscribers",
-    views: "1.8M views",
-    age: "1 month ago",
-    duration: "31:58",
-    category: "Travel",
-    thumbnail: "assets/thumbnails/train-travel.png",
+    subscribers: "Developer education channel",
+    views: "Full course",
+    age: "React tutorial",
+    duration: "11:55:27",
+    category: "Tech",
     description:
-      "A calm rail trip through valleys, tunnels, villages, and snow lines as the afternoon light shifts."
+      "A full React course from freeCodeCamp, embedded directly from YouTube."
   },
   {
-    id: "frontend-build",
-    title: "Rebuilding a video dashboard with plain CSS grid",
-    channel: "Code Frame",
-    avatar: "CF",
-    avatarClass: "sky",
-    subscribers: "774K subscribers",
-    views: "251K views",
-    age: "4 days ago",
-    duration: "26:33",
-    category: "Coding",
-    thumbnail: "assets/thumbnails/frontend-build.png",
-    description:
-      "A no-framework walkthrough of responsive grids, sticky controls, accessible cards, and clean interaction state."
-  },
-  {
-    id: "morning-market",
-    title: "Inside the market before the city wakes up",
-    channel: "Local Lens",
-    avatar: "LL",
+    id: "8aGhZQkoFbQ",
+    title: "What the heck is the event loop anyway? | Philip Roberts | JSConf EU",
+    channel: "JSConf",
+    avatar: "JS",
     avatarClass: "violet",
-    subscribers: "443K subscribers",
-    views: "521K views",
-    age: "2 weeks ago",
-    duration: "17:24",
-    category: "Travel",
-    thumbnail: "assets/thumbnails/morning-market.png",
+    subscribers: "Conference channel",
+    views: "Learning video",
+    age: "JSConf EU",
+    duration: "26:52",
+    category: "Coding",
     description:
-      "Vendors setting up produce, fish, flowers, and breakfast counters before the first rush."
+      "A well-known JavaScript conference talk served from YouTube."
+  },
+  {
+    id: "g4Hbz2jLxvQ",
+    title: "SPIDER-MAN: INTO THE SPIDER-VERSE - Official Trailer (HD)",
+    channel: "Sony Pictures Entertainment",
+    avatar: "SP",
+    avatarClass: "sky",
+    subscribers: "Official movie channel",
+    views: "Trailer",
+    age: "Official trailer",
+    duration: "2:41",
+    category: "Entertainment",
+    description:
+      "A verified embeddable official movie trailer served by YouTube."
+  },
+  {
+    id: "YE7VzlLtp-4",
+    title: "Big Buck Bunny",
+    channel: "Blender Foundation",
+    avatar: "BF",
+    avatarClass: "lime",
+    subscribers: "Open movie channel",
+    views: "Open film",
+    age: "Short film",
+    duration: "9:56",
+    category: "Film",
+    description:
+      "The Blender Foundation's open short film on YouTube."
+  },
+  {
+    id: "LXb3EKWsInQ",
+    title: "COSTA RICA IN 4K 60fps HDR (ULTRA HD)",
+    channel: "Jacob + Katie Schwarz",
+    avatar: "JK",
+    avatarClass: "coral",
+    subscribers: "Travel film channel",
+    views: "4K travel video",
+    age: "Travel",
+    duration: "5:14",
+    category: "Travel",
+    description:
+      "A real YouTube travel film embedded in the ViewTube player."
+  },
+  {
+    id: "MmB9b5njVbA",
+    title: "Official Minecraft Trailer",
+    channel: "Minecraft",
+    avatar: "MC",
+    avatarClass: "lime",
+    subscribers: "Official game channel",
+    views: "Game trailer",
+    age: "Official trailer",
+    duration: "1:00",
+    category: "Gaming",
+    description:
+      "The official Minecraft trailer served through YouTube."
+  },
+  {
+    id: "F3zw1Gvn4Mk",
+    title: "Mr Fox Restaurant Promo Video",
+    channel: "Mr Fox",
+    avatar: "MF",
+    avatarClass: "coral",
+    subscribers: "Restaurant channel",
+    views: "Food video",
+    age: "Promo",
+    duration: "1:00",
+    category: "Food",
+    description:
+      "A real food and restaurant video embedded from YouTube."
+  },
+  {
+    id: "hFZFjoX2cGg",
+    title: "Backyard Squirrel Maze 1.0 - Ninja Warrior Course",
+    channel: "Mark Rober",
+    avatar: "MR",
+    avatarClass: "violet",
+    subscribers: "Science and engineering channel",
+    views: "Popular video",
+    age: "Engineering build",
+    duration: "21:39",
+    category: "Science",
+    description:
+      "A real engineering video from YouTube, shown in the embedded player."
   }
 ];
 
 const shorts = [
-  { id: "short-editing", title: "Color grade in 20 seconds", views: "4.1M views", thumbnail: "assets/thumbnails/studio-desk.png" },
-  { id: "short-noodles", title: "Hand-pulled noodles landing hot", views: "2.7M views", thumbnail: "assets/thumbnails/city-food.png" },
-  { id: "short-rocket", title: "Rocket stage separation view", views: "9.3M views", thumbnail: "assets/thumbnails/space-news.png" },
-  { id: "short-bike", title: "Ridge drop with perfect timing", views: "1.6M views", thumbnail: "assets/thumbnails/mountain-bike.png" },
-  { id: "short-coffee", title: "Tiny espresso shot, big crema", views: "873K views", thumbnail: "assets/thumbnails/coffee-review.png" }
+  {
+    id: "jNQXAC9IVRw",
+    title: "Me at the zoo",
+    views: "Historic YouTube short upload"
+  },
+  {
+    id: "MmB9b5njVbA",
+    title: "Official Minecraft Trailer",
+    views: "Game trailer"
+  },
+  {
+    id: "tgbNymZ7vqY",
+    title: "Bohemian Rhapsody",
+    views: "Official music video"
+  },
+  {
+    id: "F3zw1Gvn4Mk",
+    title: "Restaurant promo",
+    views: "Food video"
+  },
+  {
+    id: "g4Hbz2jLxvQ",
+    title: "Spider-Verse trailer",
+    views: "Official trailer"
+  }
 ];
 
-const categories = ["All", "Music", "Gaming", "News", "Live", "Coding", "Food", "Travel", "Sports", "Reviews", "Tech"];
+const categories = [
+  "All",
+  "Music",
+  "Gaming",
+  "Coding",
+  "Tech",
+  "Science",
+  "Food",
+  "Travel",
+  "Film",
+  "History",
+  "Entertainment"
+];
 
 const state = {
   category: "All",
-  query: ""
+  query: "",
+  loading: false,
+  notice: "",
+  remoteVideos: null
 };
+
+const videos = [...starterVideos];
+const externalVideos = new Map();
 
 const chipRow = document.querySelector("#chipRow");
 const videoGrid = document.querySelector("#videoGrid");
@@ -177,19 +204,189 @@ const refreshButton = document.querySelector("#refreshButton");
 const sidebar = document.querySelector("#sidebar");
 const menuButton = document.querySelector("#menuButton");
 const watchDrawer = document.querySelector("#watchDrawer");
-const watchImage = document.querySelector("#watchImage");
+const watchFrame = document.querySelector("#watchFrame");
 const watchTitle = document.querySelector("#watchTitle");
 const watchAvatar = document.querySelector("#watchAvatar");
 const watchChannel = document.querySelector("#watchChannel");
 const watchSubscribers = document.querySelector("#watchSubscribers");
 const watchDescription = document.querySelector("#watchDescription");
+const watchYouTubeLink = document.querySelector("#watchYouTubeLink");
 const upNextList = document.querySelector("#upNextList");
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function thumbnailUrl(videoId) {
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+}
+
+function youtubeUrl(videoId) {
+  return `https://www.youtube.com/watch?v=${videoId}`;
+}
+
+function channelInitials(value) {
+  return String(value || "YT")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function embedUrl(videoId) {
+  const url = new URL(`https://www.youtube.com/embed/${videoId}`);
+  url.searchParams.set("autoplay", "0");
+  url.searchParams.set("playsinline", "1");
+  url.searchParams.set("rel", "0");
+
+  if (window.location.origin && window.location.origin !== "null") {
+    url.searchParams.set("enablejsapi", "1");
+    url.searchParams.set("origin", window.location.origin);
+    url.searchParams.set("widget_referrer", window.location.href);
+  }
+
+  return url.toString();
+}
+
+function updateAddressVideo(videoId) {
+  if (!window.history || !window.history.replaceState) return;
+
+  const url = new URL(window.location.href);
+
+  if (videoId) {
+    url.searchParams.set("v", videoId);
+  } else {
+    url.searchParams.delete("v");
+  }
+
+  url.searchParams.delete("video");
+  url.hash = "";
+  window.history.replaceState(null, "", url);
+}
+
+function extractYouTubeId(value) {
+  const trimmed = value.trim();
+  const urlCandidate = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  try {
+    const url = new URL(urlCandidate);
+    const host = url.hostname.replace(/^www\./, "");
+
+    if (host === "youtu.be") {
+      const id = url.pathname.split("/").filter(Boolean)[0];
+      return /^[a-zA-Z0-9_-]{11}$/.test(id) ? id : "";
+    }
+
+    if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
+      const fromQuery = url.searchParams.get("v");
+      if (/^[a-zA-Z0-9_-]{11}$/.test(fromQuery || "")) return fromQuery;
+
+      const parts = url.pathname.split("/").filter(Boolean);
+      const embeddedId = parts.find((part, index) => ["embed", "shorts", "live"].includes(parts[index - 1]));
+      return /^[a-zA-Z0-9_-]{11}$/.test(embeddedId || "") ? embeddedId : "";
+    }
+  } catch {
+    return "";
+  }
+
+  return "";
+}
+
+function videoIdFromLocation() {
+  const url = new URL(window.location.href);
+  const hash = url.hash.replace(/^#/, "");
+  const hashParams = new URLSearchParams(hash);
+  const candidates = [
+    url.searchParams.get("v"),
+    url.searchParams.get("video"),
+    hashParams.get("v"),
+    hashParams.get("video"),
+    hashParams.get("watch"),
+    hash
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    const videoId = extractYouTubeId(candidate);
+    if (videoId) return videoId;
+  }
+
+  return "";
+}
+
+function getVideo(videoId) {
+  return (
+    videos.find((video) => video.id === videoId) ||
+    state.remoteVideos?.find((video) => video.id === videoId) ||
+    externalVideos.get(videoId)
+  );
+}
+
+function makeExternalVideo(videoId) {
+  if (!externalVideos.has(videoId)) {
+    externalVideos.set(videoId, {
+      id: videoId,
+      title: `YouTube video ${videoId}`,
+      channel: "YouTube",
+      avatar: "YT",
+      avatarClass: "coral",
+      subscribers: "Loaded from URL",
+      views: "Real YouTube video",
+      age: "Opened from search",
+      duration: "YouTube",
+      category: "All",
+      description:
+        "This video was opened from a YouTube URL or video ID and is served through YouTube's official embedded player."
+    });
+  }
+
+  return externalVideos.get(videoId);
+}
+
+async function hydrateExternalVideo(videoId) {
+  const selected = externalVideos.get(videoId);
+  if (!selected) return;
+
+  try {
+    const response = await fetch(`/api/oembed?id=${encodeURIComponent(videoId)}`);
+    if (!response.ok) return;
+
+    const data = await response.json();
+    selected.title = data.title || selected.title;
+    selected.channel = data.channel || selected.channel;
+    selected.avatar = channelInitials(selected.channel);
+    selected.subscribers = "YouTube video";
+    selected.description = `${selected.title} by ${selected.channel}, served through YouTube's official embedded player.`;
+
+    if (!watchDrawer.hidden && watchFrame.src.includes(`/embed/${videoId}`)) {
+      watchFrame.title = selected.title;
+      watchTitle.textContent = selected.title;
+      watchAvatar.textContent = selected.avatar;
+      watchChannel.textContent = selected.channel;
+      watchSubscribers.textContent = selected.subscribers;
+      watchDescription.textContent = selected.description;
+    }
+  } catch {
+    // Keep the generic metadata if YouTube oEmbed is unavailable.
+  }
+}
 
 function renderChips() {
   chipRow.innerHTML = categories
     .map((category) => {
       const active = category === state.category ? " is-active" : "";
-      return `<button class="chip${active}" type="button" data-category="${category}">${category}</button>`;
+      return `<button class="chip${active}" type="button" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>`;
     })
     .join("");
 }
@@ -198,14 +395,11 @@ function getFilteredVideos() {
   const normalizedQuery = state.query.trim().toLowerCase();
 
   return videos.filter((video) => {
-    const categoryMatch =
-      state.category === "All" ||
-      video.category === state.category ||
-      (state.category === "Live" && video.live);
+    const categoryMatch = state.category === "All" || video.category === state.category;
 
     const textMatch =
       !normalizedQuery ||
-      [video.title, video.channel, video.category, video.description].some((value) =>
+      [video.title, video.channel, video.category, video.description, video.id].some((value) =>
         value.toLowerCase().includes(normalizedQuery)
       );
 
@@ -214,38 +408,60 @@ function getFilteredVideos() {
 }
 
 function renderVideos() {
-  const filtered = getFilteredVideos();
+  const showingRemote = Array.isArray(state.remoteVideos);
+  const filtered = showingRemote ? state.remoteVideos : getFilteredVideos();
 
-  if (filtered.length === 0) {
-    videoGrid.innerHTML = `<div class="empty-state">No videos matched your search.</div>`;
+  if (state.loading) {
+    videoGrid.innerHTML = `<div class="empty-state"><span>Searching YouTube...</span></div>`;
+  } else if (filtered.length === 0) {
+    const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(state.query)}`;
+    const message = showingRemote ? "No YouTube results found." : "No local matches.";
+    videoGrid.innerHTML = `
+      <div class="empty-state">
+        <span>${escapeHtml(message)}</span>
+        <a href="${youtubeSearchUrl}" target="_blank" rel="noopener">Search YouTube</a>
+      </div>
+    `;
   } else {
     videoGrid.innerHTML = filtered.map(renderVideoCard).join("");
   }
 
-  const label = state.category === "All" ? "Recommended videos" : `${state.category} videos`;
-  resultSummary.textContent = state.query
-    ? `${filtered.length} result${filtered.length === 1 ? "" : "s"} for "${state.query}"`
-    : label;
+  if (state.loading) {
+    resultSummary.textContent = `Searching YouTube for "${state.query}"`;
+    return;
+  }
+
+  const label = showingRemote
+    ? `YouTube results for "${state.query}"`
+    : state.category === "All"
+      ? "Real YouTube videos"
+      : `${state.category} videos`;
+
+  resultSummary.textContent = state.notice
+    ? state.notice
+    : state.query && !showingRemote
+      ? `${filtered.length} result${filtered.length === 1 ? "" : "s"} for "${state.query}"`
+      : label;
 }
 
 function renderVideoCard(video) {
   const badge = video.live
     ? `<span class="live-badge">LIVE</span>`
-    : `<span class="duration">${video.duration}</span>`;
+    : `<span class="duration">${escapeHtml(video.duration)}</span>`;
 
   return `
-    <button class="video-card" type="button" data-video-id="${video.id}">
+    <button class="video-card" type="button" data-video-id="${escapeHtml(video.id)}">
       <span class="thumbnail-frame">
-        <img src="${video.thumbnail}" alt="">
+        <img src="${thumbnailUrl(video.id)}" alt="" loading="lazy">
         ${badge}
       </span>
       <span class="video-info">
-        <span class="channel-dot ${video.avatarClass}">${video.avatar}</span>
+        <span class="channel-dot ${escapeHtml(video.avatarClass)}">${escapeHtml(video.avatar)}</span>
         <span class="video-text">
-          <strong class="video-title">${video.title}</strong>
+          <strong class="video-title">${escapeHtml(video.title)}</strong>
           <span class="video-meta">
-            <span>${video.channel}</span>
-            <span>${video.views} • ${video.age}</span>
+            <span>${escapeHtml(video.channel)}</span>
+            <span>${escapeHtml(video.views)} - ${escapeHtml(video.age)}</span>
           </span>
         </span>
       </span>
@@ -257,47 +473,57 @@ function renderShorts() {
   shortsGrid.innerHTML = shorts
     .map(
       (short) => `
-        <button class="short-card" type="button" data-short-id="${short.id}">
-          <span class="short-card__media"><img src="${short.thumbnail}" alt=""></span>
-          <strong>${short.title}</strong>
-          <span>${short.views}</span>
+        <button class="short-card" type="button" data-short-id="${escapeHtml(short.id)}">
+          <span class="short-card__media"><img src="${thumbnailUrl(short.id)}" alt="" loading="lazy"></span>
+          <strong>${escapeHtml(short.title)}</strong>
+          <span>${escapeHtml(short.views)}</span>
         </button>
       `
     )
     .join("");
 }
 
-function openWatch(videoId) {
-  const selected = videos.find((video) => video.id === videoId) || videos[0];
-  watchImage.src = selected.thumbnail;
-  watchImage.alt = "";
+function openWatch(videoId, options = {}) {
+  const { updateAddress = true } = options;
+  const selected = getVideo(videoId) || videos[0];
+  watchFrame.src = embedUrl(selected.id);
+  watchFrame.title = selected.title;
   watchTitle.textContent = selected.title;
   watchAvatar.textContent = selected.avatar;
   watchAvatar.className = `channel-dot ${selected.avatarClass}`;
   watchChannel.textContent = selected.channel;
   watchSubscribers.textContent = selected.subscribers;
   watchDescription.textContent = selected.description;
+  watchYouTubeLink.href = youtubeUrl(selected.id);
   renderUpNext(selected.id);
   watchDrawer.hidden = false;
   document.body.style.overflow = "hidden";
+
+  if (updateAddress) {
+    updateAddressVideo(selected.id);
+  }
 }
 
 function closeWatch() {
   watchDrawer.hidden = true;
+  watchFrame.src = "";
   document.body.style.overflow = "";
+  updateAddressVideo("");
 }
 
 function renderUpNext(activeId) {
-  upNextList.innerHTML = videos
+  const sourceVideos = state.remoteVideos?.some((video) => video.id === activeId) ? state.remoteVideos : videos;
+
+  upNextList.innerHTML = sourceVideos
     .filter((video) => video.id !== activeId)
     .slice(0, 6)
     .map(
       (video) => `
-        <button class="up-next-card" type="button" data-video-id="${video.id}">
-          <img src="${video.thumbnail}" alt="">
+        <button class="up-next-card" type="button" data-video-id="${escapeHtml(video.id)}">
+          <img src="${thumbnailUrl(video.id)}" alt="" loading="lazy">
           <span>
-            <strong>${video.title}</strong>
-            <span>${video.channel}</span>
+            <strong>${escapeHtml(video.title)}</strong>
+            <span>${escapeHtml(video.channel)}</span>
           </span>
         </button>
       `
@@ -306,6 +532,8 @@ function renderUpNext(activeId) {
 }
 
 function shuffleVideos() {
+  state.remoteVideos = null;
+  state.notice = "";
   videos.sort(() => Math.random() - 0.5);
   renderVideos();
 }
@@ -314,6 +542,8 @@ chipRow.addEventListener("click", (event) => {
   const chip = event.target.closest("[data-category]");
   if (!chip) return;
   state.category = chip.dataset.category;
+  state.remoteVideos = null;
+  state.notice = "";
   renderChips();
   renderVideos();
 });
@@ -327,8 +557,7 @@ videoGrid.addEventListener("click", (event) => {
 shortsGrid.addEventListener("click", (event) => {
   const card = event.target.closest("[data-short-id]");
   if (!card) return;
-  const shortIndex = shorts.findIndex((short) => short.id === card.dataset.shortId);
-  openWatch(videos[shortIndex % videos.length].id);
+  openWatch(card.dataset.shortId);
 });
 
 upNextList.addEventListener("click", (event) => {
@@ -337,14 +566,58 @@ upNextList.addEventListener("click", (event) => {
   openWatch(card.dataset.videoId);
 });
 
-searchForm.addEventListener("submit", (event) => {
+searchForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  state.query = searchInput.value;
+  const videoId = extractYouTubeId(searchInput.value);
+
+  if (videoId) {
+    if (!getVideo(videoId)) {
+      makeExternalVideo(videoId);
+      hydrateExternalVideo(videoId);
+    }
+
+    openWatch(videoId);
+    return;
+  }
+
+  const query = searchInput.value.trim();
+  state.query = query;
+  state.category = "All";
+  state.notice = "";
+  state.remoteVideos = null;
+
+  if (!query) {
+    renderChips();
+    renderVideos();
+    return;
+  }
+
+  state.loading = true;
+  renderChips();
   renderVideos();
+
+  try {
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+    const data = await response.json().catch(() => ({}));
+
+    if (response.ok && data.enabled) {
+      state.remoteVideos = data.videos || [];
+      state.remoteVideos.forEach((video) => externalVideos.set(video.id, video));
+    } else {
+      state.notice = data.error || "In-app YouTube search is unavailable.";
+    }
+  } catch {
+    state.notice = "In-app YouTube search is unavailable.";
+  } finally {
+    state.loading = false;
+    renderVideos();
+  }
 });
 
 searchInput.addEventListener("input", () => {
   state.query = searchInput.value;
+  state.notice = "";
+  state.remoteVideos = null;
   renderVideos();
 });
 
@@ -377,3 +650,14 @@ document.addEventListener("keydown", (event) => {
 renderChips();
 renderVideos();
 renderShorts();
+
+const initialVideoId = videoIdFromLocation();
+
+if (initialVideoId) {
+  if (!getVideo(initialVideoId)) {
+    makeExternalVideo(initialVideoId);
+    hydrateExternalVideo(initialVideoId);
+  }
+
+  openWatch(initialVideoId, { updateAddress: false });
+}
