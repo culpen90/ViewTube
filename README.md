@@ -7,5 +7,5 @@ Open `index.html` in a browser to view the interface. The page includes a respon
 To regenerate the thumbnail PNGs:
 
 ```bash
-node tools/render-thumbnails.mjs
+node tools/render-thumbnails.js
 ```

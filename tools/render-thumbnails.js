@@ -1,9 +1,8 @@
-import { mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import { spawnSync } from "node:child_process";
+const { spawnSync } = require("node:child_process");
+const { mkdirSync } = require("node:fs");
+const { resolve } = require("node:path");
+const { pathToFileURL } = require("node:url");
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 const renderer = resolve(__dirname, "thumbnail-renderer.html");
 const outputDir = resolve(root, "assets", "thumbnails");
