@@ -4,6 +4,14 @@ const path = require("path");
 
 const root = __dirname;
 const port = Number(process.env.PORT || 4173);
+const youtubeSearchMaxResults = 12;
+const youtubeSearchCacheTtlMs = 5 * 60 * 1000;
+const youtubePlayabilityCacheTtlMs = 60 * 60 * 1000;
+const youtubePlayabilityBatchSize = 8;
+const youtubeSearchUserAgent =
+  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36";
+const youtubeSearchCache = new Map();
+const youtubePlayabilityCache = new Map();
 
 const contentTypes = {
   ".css": "text/css; charset=utf-8",
@@ -34,40 +42,6 @@ function sendJson(response, status, payload) {
   response.end(JSON.stringify(payload));
 }
 
-function formatDuration(duration) {
-  const match = String(duration || "").match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
-  if (!match) return "YouTube";
-
-  const hours = Number(match[1] || 0);
-  const minutes = Number(match[2] || 0);
-  const seconds = Number(match[3] || 0);
-  const parts = hours > 0 ? [hours, minutes, seconds] : [minutes, seconds];
-
-  return parts.map((part, index) => (index === 0 ? String(part) : String(part).padStart(2, "0"))).join(":");
-}
-
-function formatViews(viewCount) {
-  const views = Number(viewCount || 0);
-  if (!Number.isFinite(views) || views <= 0) return "YouTube views";
-
-  const formatter = new Intl.NumberFormat("en", {
-    maximumFractionDigits: 1,
-    notation: "compact"
-  });
-
-  return `${formatter.format(views)} views`;
-}
-
-function formatPublishedAt(publishedAt) {
-  if (!publishedAt) return "YouTube";
-
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  }).format(new Date(publishedAt));
-}
-
 function initials(value) {
   return String(value || "YT")
     .split(/\s+/)
@@ -76,6 +50,311 @@ function initials(value) {
     .map((part) => part[0])
     .join("")
     .toUpperCase();
+}
+
+function compactText(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function textFrom(value) {
+  if (!value) return "";
+  if (typeof value === "string") return compactText(value);
+  if (typeof value.simpleText === "string") return compactText(value.simpleText);
+  if (Array.isArray(value.runs)) return compactText(value.runs.map((run) => run.text || "").join(""));
+  if (value.accessibility?.accessibilityData?.label) return compactText(value.accessibility.accessibilityData.label);
+  return "";
+}
+
+function extractJsonObjectAt(html, start) {
+  if (start === -1) return "";
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = start; index < html.length; index += 1) {
+    const char = html[index];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === "\"") {
+        inString = false;
+      }
+
+      continue;
+    }
+
+    if (char === "\"") {
+      inString = true;
+    } else if (char === "{") {
+      depth += 1;
+    } else if (char === "}") {
+      depth -= 1;
+
+      if (depth === 0) {
+        return html.slice(start, index + 1);
+      }
+    }
+  }
+
+  return "";
+}
+
+function extractJsonObjectAfter(html, marker, fromIndex = 0) {
+  const markerIndex = html.indexOf(marker, fromIndex);
+  if (markerIndex === -1) return "";
+
+  return extractJsonObjectAt(html, html.indexOf("{", markerIndex));
+}
+
+function parseYtInitialData(html) {
+  const markers = ["var ytInitialData =", "ytInitialData =", "window[\"ytInitialData\"] ="];
+
+  for (const marker of markers) {
+    const json = extractJsonObjectAfter(html, marker);
+    if (!json) continue;
+
+    try {
+      return JSON.parse(json);
+    } catch {
+      // Try the next known assignment shape.
+    }
+  }
+
+  return null;
+}
+
+function parseEmbeddedPlayerResponse(html) {
+  let markerIndex = 0;
+
+  while ((markerIndex = html.indexOf("ytcfg.set(", markerIndex)) !== -1) {
+    const json = extractJsonObjectAfter(html, "ytcfg.set(", markerIndex);
+    markerIndex += "ytcfg.set(".length;
+    if (!json) continue;
+
+    try {
+      const config = JSON.parse(json);
+      const response = config.PLAYER_VARS?.embedded_player_response;
+      if (!response) continue;
+
+      return typeof response === "string" ? JSON.parse(response) : response;
+    } catch {
+      // Keep scanning other ytcfg.set calls.
+    }
+  }
+
+  return null;
+}
+
+function collectVideoRenderers(value, renderers = []) {
+  if (!value || typeof value !== "object" || renderers.length >= 50) return renderers;
+
+  if (value.videoRenderer) {
+    renderers.push(value.videoRenderer);
+    return renderers;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) collectVideoRenderers(item, renderers);
+    return renderers;
+  }
+
+  for (const item of Object.values(value)) collectVideoRenderers(item, renderers);
+  return renderers;
+}
+
+function videoIdFromRenderer(renderer) {
+  return (
+    renderer.videoId ||
+    renderer.navigationEndpoint?.watchEndpoint?.videoId ||
+    renderer.thumbnailOverlays
+      ?.map((overlay) => overlay.thumbnailOverlayNowPlayingRenderer?.navigationEndpoint?.watchEndpoint?.videoId)
+      .find(Boolean) ||
+    ""
+  );
+}
+
+function isLiveRenderer(renderer) {
+  const badgeText = (renderer.badges || [])
+    .map((badge) => {
+      const metadata = badge.metadataBadgeRenderer || {};
+      return textFrom(metadata.label) || textFrom(metadata.tooltip) || textFrom(metadata);
+    })
+    .join(" ");
+
+  const hasLiveOverlay = (renderer.thumbnailOverlays || []).some((overlay) => {
+    const status = overlay.thumbnailOverlayTimeStatusRenderer;
+    return status?.style === "LIVE" || textFrom(status?.text).toUpperCase() === "LIVE";
+  });
+
+  return /\bLIVE\b/i.test(badgeText) || hasLiveOverlay;
+}
+
+function mapSearchRenderer(renderer, index) {
+  const title = textFrom(renderer.title) || "YouTube video";
+  const channel = textFrom(renderer.ownerText) || textFrom(renderer.shortBylineText) || textFrom(renderer.longBylineText) || "YouTube";
+  const live = isLiveRenderer(renderer);
+  const views = textFrom(renderer.viewCountText) || textFrom(renderer.shortViewCountText) || (live ? "Live now" : "YouTube views");
+  const age = textFrom(renderer.publishedTimeText) || (live ? "Live now" : "YouTube");
+  const duration = live ? "LIVE" : textFrom(renderer.lengthText) || "YouTube";
+  const description =
+    textFrom(renderer.descriptionSnippet) ||
+    textFrom(renderer.detailedMetadataSnippets?.[0]?.snippetText) ||
+    `${title} by ${channel}, found in YouTube search results.`;
+
+  return {
+    id: videoIdFromRenderer(renderer),
+    title,
+    channel,
+    avatar: initials(channel),
+    avatarClass: ["sky", "coral", "lime", "violet"][index % 4],
+    subscribers: "YouTube search result",
+    views,
+    age,
+    duration,
+    live,
+    category: "Search",
+    description
+  };
+}
+
+async function canPlayInEmbed(videoId, appOrigin) {
+  const cacheKey = `${appOrigin} ${videoId}`;
+  const cached = youtubePlayabilityCache.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < youtubePlayabilityCacheTtlMs) {
+    return cached.playable;
+  }
+
+  const embedUrl = new URL(`https://www.youtube.com/embed/${videoId}`);
+  embedUrl.searchParams.set("autoplay", "0");
+  embedUrl.searchParams.set("playsinline", "1");
+  embedUrl.searchParams.set("rel", "0");
+  embedUrl.searchParams.set("enablejsapi", "1");
+  embedUrl.searchParams.set("origin", appOrigin);
+  embedUrl.searchParams.set("widget_referrer", `${appOrigin}/`);
+
+  let playable = false;
+
+  try {
+    const youtubeResponse = await fetch(embedUrl, {
+      headers: {
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        Referer: `${appOrigin}/`,
+        "User-Agent": youtubeSearchUserAgent
+      }
+    });
+
+    if (youtubeResponse.ok) {
+      const html = await youtubeResponse.text();
+      const playerResponse = parseEmbeddedPlayerResponse(html);
+      const playability = playerResponse?.previewPlayabilityStatus || {};
+
+      playable =
+        playability.status === "OK" &&
+        playability.playableInEmbed === true &&
+        Boolean(playerResponse?.embedPreview);
+    }
+  } catch {
+    playable = false;
+  }
+
+  if (youtubePlayabilityCache.size > 200) {
+    youtubePlayabilityCache.clear();
+  }
+
+  youtubePlayabilityCache.set(cacheKey, {
+    timestamp: Date.now(),
+    playable
+  });
+
+  return playable;
+}
+
+async function filterEmbeddableVideos(candidates, appOrigin) {
+  const videos = [];
+
+  for (
+    let index = 0;
+    index < candidates.length && videos.length < youtubeSearchMaxResults;
+    index += youtubePlayabilityBatchSize
+  ) {
+    const batch = candidates.slice(index, index + youtubePlayabilityBatchSize);
+    const playableResults = await Promise.all(batch.map((video) => canPlayInEmbed(video.id, appOrigin)));
+
+    for (const [batchIndex, playable] of playableResults.entries()) {
+      if (playable) {
+        videos.push(batch[batchIndex]);
+      }
+
+      if (videos.length >= youtubeSearchMaxResults) {
+        break;
+      }
+    }
+  }
+
+  return videos;
+}
+
+async function searchYouTube(query, appOrigin) {
+  const cacheKey = `${appOrigin} ${query.toLowerCase()}`;
+  const cached = youtubeSearchCache.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < youtubeSearchCacheTtlMs) {
+    return cached.videos;
+  }
+
+  const searchUrl = new URL("https://www.youtube.com/results");
+  searchUrl.searchParams.set("search_query", query);
+  searchUrl.searchParams.set("sp", "EgIQAQ==");
+  searchUrl.searchParams.set("hl", "en");
+  searchUrl.searchParams.set("gl", "US");
+
+  const youtubeResponse = await fetch(searchUrl, {
+    headers: {
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
+      "User-Agent": youtubeSearchUserAgent
+    }
+  });
+
+  if (!youtubeResponse.ok) {
+    throw new Error(`YouTube search returned ${youtubeResponse.status}`);
+  }
+
+  const html = await youtubeResponse.text();
+  const initialData = parseYtInitialData(html);
+
+  if (!initialData) {
+    throw new Error("YouTube search data was not present in the response.");
+  }
+
+  const seen = new Set();
+  const candidates = collectVideoRenderers(initialData)
+    .map(mapSearchRenderer)
+    .filter((video) => {
+      if (!/^[a-zA-Z0-9_-]{11}$/.test(video.id) || seen.has(video.id)) return false;
+      seen.add(video.id);
+      return true;
+    });
+  const videos = await filterEmbeddableVideos(candidates, appOrigin);
+
+  if (youtubeSearchCache.size > 50) {
+    youtubeSearchCache.clear();
+  }
+
+  youtubeSearchCache.set(cacheKey, {
+    timestamp: Date.now(),
+    videos
+  });
+
+  return videos;
 }
 
 async function handleOEmbed(url, response) {
@@ -110,8 +389,12 @@ async function handleOEmbed(url, response) {
   }
 }
 
-async function handleSearch(url, response) {
-  const apiKey = process.env.YOUTUBE_API_KEY;
+function appOriginFromRequest(request) {
+  const host = String(request.headers.host || `127.0.0.1:${port}`).replace(/[^a-zA-Z0-9.:-]/g, "");
+  return `http://${host || `127.0.0.1:${port}`}`;
+}
+
+async function handleSearch(request, url, response) {
   const query = (url.searchParams.get("q") || "").trim();
 
   if (!query) {
@@ -119,72 +402,8 @@ async function handleSearch(url, response) {
     return;
   }
 
-  if (!apiKey) {
-    sendJson(response, 501, {
-      enabled: false,
-      error: "Set YOUTUBE_API_KEY to enable in-app YouTube search."
-    });
-    return;
-  }
-
-  const searchUrl = new URL("https://www.googleapis.com/youtube/v3/search");
-  searchUrl.searchParams.set("part", "snippet");
-  searchUrl.searchParams.set("maxResults", "12");
-  searchUrl.searchParams.set("q", query);
-  searchUrl.searchParams.set("safeSearch", "moderate");
-  searchUrl.searchParams.set("type", "video");
-  searchUrl.searchParams.set("videoEmbeddable", "true");
-  searchUrl.searchParams.set("key", apiKey);
-
   try {
-    const searchResponse = await fetch(searchUrl);
-    const searchData = await searchResponse.json();
-
-    if (!searchResponse.ok) {
-      sendJson(response, searchResponse.status, {
-        error: searchData.error?.message || "YouTube search failed."
-      });
-      return;
-    }
-
-    const ids = searchData.items.map((item) => item.id?.videoId).filter(Boolean);
-
-    if (ids.length === 0) {
-      sendJson(response, 200, { enabled: true, videos: [] });
-      return;
-    }
-
-    const videosUrl = new URL("https://www.googleapis.com/youtube/v3/videos");
-    videosUrl.searchParams.set("part", "snippet,contentDetails,statistics,status");
-    videosUrl.searchParams.set("id", ids.join(","));
-    videosUrl.searchParams.set("key", apiKey);
-
-    const videosResponse = await fetch(videosUrl);
-    const videosData = await videosResponse.json();
-
-    if (!videosResponse.ok) {
-      sendJson(response, videosResponse.status, {
-        error: videosData.error?.message || "YouTube video lookup failed."
-      });
-      return;
-    }
-
-    const videos = videosData.items
-      .filter((item) => item.status?.embeddable !== false)
-      .map((item, index) => ({
-        id: item.id,
-        title: item.snippet?.title || "YouTube video",
-        channel: item.snippet?.channelTitle || "YouTube",
-        avatar: initials(item.snippet?.channelTitle),
-        avatarClass: ["sky", "coral", "lime", "violet"][index % 4],
-        subscribers: "YouTube search result",
-        views: formatViews(item.statistics?.viewCount),
-        age: formatPublishedAt(item.snippet?.publishedAt),
-        duration: formatDuration(item.contentDetails?.duration),
-        category: "Search",
-        description: item.snippet?.description || "A YouTube video from search results."
-      }));
-
+    const videos = await searchYouTube(query, appOriginFromRequest(request));
     sendJson(response, 200, { enabled: true, videos });
   } catch {
     sendJson(response, 502, { error: "Unable to reach YouTube search." });
@@ -221,7 +440,7 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (url.pathname === "/api/search") {
-    await handleSearch(url, response);
+    await handleSearch(request, url, response);
     return;
   }
 

@@ -415,7 +415,7 @@ function renderVideos() {
     videoGrid.innerHTML = `<div class="empty-state"><span>Searching YouTube...</span></div>`;
   } else if (filtered.length === 0) {
     const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(state.query)}`;
-    const message = showingRemote ? "No YouTube results found." : "No local matches.";
+    const message = showingRemote ? "No in-app playable YouTube results found." : "No local matches.";
     videoGrid.innerHTML = `
       <div class="empty-state">
         <span>${escapeHtml(message)}</span>
