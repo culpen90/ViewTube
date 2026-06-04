@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thumbnail Renderer</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1280px;
+        height: 720px;
+        margin: 0;
+        overflow: hidden;
+        background: #111;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .thumb {
+        position: relative;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        color: #fff;
+        background:
+          radial-gradient(circle at 18% 22%, var(--light), transparent 0 160px),
+          radial-gradient(circle at 85% 12%, rgba(255, 255, 255, 0.2), transparent 0 230px),
+          linear-gradient(135deg, var(--a), var(--b) 52%, var(--c));
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.18;
+        background-image:
+          linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: 56px 56px;
+        mask-image: linear-gradient(130deg, transparent, #000 18%, #000 82%, transparent);
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+
+      .badge {
+        position: absolute;
+        top: 58px;
+        left: 64px;
+        padding: 14px 22px;
+        background: rgba(0, 0, 0, 0.42);
+        border: 2px solid rgba(255, 255, 255, 0.42);
+        border-radius: 999px;
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .headline {
+        position: absolute;
+        right: 64px;
+        bottom: 56px;
+        left: 64px;
+        display: grid;
+        gap: 8px;
+        text-shadow: 0 6px 24px rgba(0, 0, 0, 0.58);
+      }
+
+      .headline strong {
+        max-width: 770px;
+        font-size: 74px;
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .headline span {
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.86);
+        font-size: 32px;
+        font-weight: 700;
+      }
+
+      .panel {
+        position: absolute;
+        right: 78px;
+        top: 92px;
+        width: 440px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 2px solid rgba(255, 255, 255, 0.24);
+        border-radius: 22px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+        backdrop-filter: blur(8px);
+      }
+
+      .panel::before,
+      .panel::after {
+        content: "";
+        position: absolute;
+        background: rgba(255, 255, 255, 0.62);
+        border-radius: 999px;
+      }
+
+      .panel::before {
+        top: 56px;
+        left: 46px;
+        width: 260px;
+        height: 20px;
+      }
+
+      .panel::after {
+        top: 104px;
+        left: 46px;
+        width: 330px;
+        height: 20px;
+        opacity: 0.58;
+      }
+
+      .circle {
+        position: absolute;
+        border-radius: 50%;
+      }
+
+      .bar {
+        position: absolute;
+        border-radius: 999px;
+      }
+
+      .screen {
+        position: absolute;
+        width: 510px;
+        height: 300px;
+        background: rgba(3, 8, 18, 0.86);
+        border: 12px solid rgba(255, 255, 255, 0.84);
+        border-radius: 24px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.36);
+      }
+
+      .keyboard {
+        position: absolute;
+        width: 520px;
+        height: 74px;
+        background: rgba(255, 255, 255, 0.72);
+        border-radius: 16px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+      }
+
+      .key {
+        position: absolute;
+        width: 42px;
+        height: 14px;
+        background: rgba(30, 30, 30, 0.24);
+        border-radius: 8px;
+      }
+
+      .road {
+        position: absolute;
+        left: -120px;
+        right: -120px;
+        bottom: -80px;
+        height: 300px;
+        background: rgba(0, 0, 0, 0.34);
+        transform: skewY(-7deg);
+      }
+
+      .play {
+        position: absolute;
+        width: 112px;
+        height: 112px;
+        background: rgba(255, 255, 255, 0.9);
+        clip-path: polygon(26% 14%, 26% 86%, 88% 50%);
+      }
+
+      .moon {
+        position: absolute;
+        width: 184px;
+        height: 184px;
+        background: #f6efe0;
+        border-radius: 50%;
+        box-shadow: 0 0 90px rgba(255, 244, 210, 0.54);
+      }
+
+      .rocket {
+        position: absolute;
+        width: 86px;
+        height: 260px;
+        background: linear-gradient(#f8fbff, #bcc8d6);
+        border-radius: 54px 54px 20px 20px;
+        transform: rotate(32deg);
+        box-shadow: 0 28px 50px rgba(0, 0, 0, 0.24);
+      }
+
+      .rocket::before {
+        content: "";
+        position: absolute;
+        left: 22px;
+        top: 58px;
+        width: 42px;
+        height: 42px;
+        background: #45a6ff;
+        border: 7px solid #dfe8f4;
+        border-radius: 50%;
+      }
+
+      .rocket::after {
+        content: "";
+        position: absolute;
+        left: 15px;
+        bottom: -114px;
+        width: 56px;
+        height: 138px;
+        background: linear-gradient(#ffcc4d, #ff6b2f, transparent);
+        border-radius: 50%;
+      }
+
+      .bowl {
+        position: absolute;
+        width: 430px;
+        height: 190px;
+        background: linear-gradient(#fff7e8, #e1ae6f);
+        border-radius: 0 0 210px 210px;
+        box-shadow: inset 0 -18px 0 rgba(0, 0, 0, 0.1), 0 28px 56px rgba(0, 0, 0, 0.28);
+      }
+
+      .noodle {
+        position: absolute;
+        width: 340px;
+        height: 24px;
+        background: #ffe188;
+        border-radius: 999px;
+        box-shadow: 0 20px 0 #ffd36e, 0 40px 0 #ffc95e;
+      }
+
+      .cup {
+        position: absolute;
+        width: 240px;
+        height: 190px;
+        background: linear-gradient(135deg, #fff, #ddd);
+        border-radius: 24px 24px 76px 76px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.32);
+      }
+
+      .cup::after {
+        content: "";
+        position: absolute;
+        right: -70px;
+        top: 46px;
+        width: 88px;
+        height: 76px;
+        border: 18px solid rgba(255, 255, 255, 0.86);
+        border-left: 0;
+        border-radius: 0 54px 54px 0;
+      }
+
+      .foam {
+        position: absolute;
+        width: 250px;
+        height: 46px;
+        background: #9b5b32;
+        border-radius: 50%;
+      }
+
+      .bike-wheel {
+        position: absolute;
+        width: 170px;
+        height: 170px;
+        border: 14px solid rgba(255, 255, 255, 0.86);
+        border-radius: 50%;
+      }
+
+      .train {
+        position: absolute;
+        width: 640px;
+        height: 172px;
+        background: linear-gradient(90deg, #e8edf3, #bcc6d2);
+        border-radius: 80px 18px 18px 80px;
+        box-shadow: 0 28px 52px rgba(0, 0, 0, 0.3);
+      }
+
+      .window {
+        position: absolute;
+        width: 82px;
+        height: 56px;
+        background: linear-gradient(135deg, #8bd3ff, #20599d);
+        border-radius: 12px;
+      }
+
+      .code {
+        position: absolute;
+        width: 520px;
+        height: 330px;
+        background: rgba(2, 8, 20, 0.86);
+        border-radius: 22px;
+        box-shadow: 0 30px 74px rgba(0, 0, 0, 0.34);
+      }
+
+      .code .bar {
+        left: 44px;
+        width: 340px;
+        height: 18px;
+        background: var(--line);
+      }
+
+      .stall {
+        position: absolute;
+        width: 560px;
+        height: 280px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 4px solid rgba(255, 255, 255, 0.32);
+        border-radius: 20px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="thumb" id="thumb">
+      <div class="grain"></div>
+      <div class="scene" id="scene"></div>
+      <div class="badge" id="badge"></div>
+      <div class="headline">
+        <strong id="title"></strong>
+        <span id="subtitle"></span>
+      </div>
+    </div>
+
+    <script>
+      const scenes = {
+        "studio-desk": {
+          colors: ["#0f172a", "#1d4ed8", "#f97316", "rgba(125, 211, 252, 0.55)"],
+          badge: "SETUP",
+          title: "Clean Desk Build",
+          subtitle: "lights • cables • camera",
+          html: `
+            <div class="screen" style="right:120px;top:98px"></div>
+            <div class="keyboard" style="right:126px;top:438px"></div>
+            ${Array.from({ length: 18 }, (_, index) => `<div class="key" style="right:${174 + (index % 6) * 58}px;top:${456 + Math.floor(index / 6) * 22}px"></div>`).join("")}
+            <div class="circle" style="right:506px;top:162px;width:76px;height:76px;background:#ff0033"></div>
+            <div class="bar" style="right:192px;top:206px;width:214px;height:18px;background:#7dd3fc"></div>
+            <div class="bar" style="right:192px;top:244px;width:284px;height:18px;background:#f97316"></div>
+          `
+        },
+        "city-food": {
+          colors: ["#3b0764", "#c2410c", "#facc15", "rgba(253, 186, 116, 0.62)"],
+          badge: "FOOD",
+          title: "Night Market",
+          subtitle: "five blocks of flavor",
+          html: `
+            <div class="bowl" style="right:106px;top:374px"></div>
+            <div class="noodle" style="right:142px;top:360px;transform:rotate(-6deg)"></div>
+            <div class="noodle" style="right:166px;top:302px;width:270px;transform:rotate(9deg)"></div>
+            <div class="bar" style="right:128px;top:166px;width:84px;height:230px;background:#f97316;border-radius:80px"></div>
+            <div class="bar" style="right:250px;top:130px;width:72px;height:248px;background:#fde047;border-radius:80px"></div>
+          `
+        },
+        "space-news": {
+          colors: ["#020617", "#172554", "#7c2d12", "rgba(96, 165, 250, 0.54)"],
+          badge: "SPACE",
+          title: "Moon Mission",
+          subtitle: "what changes next",
+          html: `
+            <div class="moon" style="right:96px;top:76px"></div>
+            <div class="rocket" style="right:350px;top:196px"></div>
+            <div class="circle" style="right:220px;top:432px;width:18px;height:18px;background:#fff"></div>
+            <div class="circle" style="right:586px;top:98px;width:14px;height:14px;background:#fff"></div>
+            <div class="circle" style="right:706px;top:242px;width:10px;height:10px;background:#fff"></div>
+          `
+        },
+        "pixel-run": {
+          colors: ["#111827", "#581c87", "#06b6d4", "rgba(217, 70, 239, 0.58)"],
+          badge: "GAMING",
+          title: "One HP Run",
+          subtitle: "neon dungeon speedrun",
+          html: `
+            <div class="panel" style="right:92px;top:102px"></div>
+            <div class="play" style="right:256px;top:196px"></div>
+            ${Array.from({ length: 9 }, (_, index) => `<div class="bar" style="right:${94 + index * 58}px;bottom:${94 + (index % 3) * 42}px;width:42px;height:42px;background:${index % 2 ? "#22d3ee" : "#d946ef"};border-radius:6px"></div>`).join("")}
+          `
+        },
+        "lofi-live": {
+          colors: ["#312e81", "#7e22ce", "#db2777", "rgba(244, 114, 182, 0.54)"],
+          badge: "LIVE",
+          title: "Lo-fi Room",
+          subtitle: "focused editing beats",
+          html: `
+            <div class="circle" style="right:146px;top:112px;width:260px;height:260px;background:rgba(255,255,255,.18)"></div>
+            <div class="circle" style="right:208px;top:174px;width:136px;height:136px;background:rgba(0,0,0,.34)"></div>
+            <div class="bar" style="right:120px;top:430px;width:390px;height:26px;background:#f9a8d4"></div>
+            <div class="bar" style="right:206px;top:482px;width:276px;height:26px;background:#a5b4fc"></div>
+            <div class="play" style="right:222px;top:188px;opacity:.86"></div>
+          `
+        },
+        "mountain-bike": {
+          colors: ["#064e3b", "#15803d", "#f59e0b", "rgba(190, 242, 100, 0.54)"],
+          badge: "RIDE",
+          title: "Ridge Trail",
+          subtitle: "fresh dirt after rain",
+          html: `
+            <div class="road"></div>
+            <div class="bike-wheel" style="right:354px;top:360px"></div>
+            <div class="bike-wheel" style="right:132px;top:360px"></div>
+            <div class="bar" style="right:224px;top:386px;width:240px;height:16px;background:#fff;transform:rotate(-18deg)"></div>
+            <div class="bar" style="right:266px;top:324px;width:160px;height:16px;background:#fff;transform:rotate(28deg)"></div>
+            <div class="circle" style="right:338px;top:248px;width:74px;height:74px;background:#fde047"></div>
+          `
+        },
+        "coffee-review": {
+          colors: ["#24110a", "#7c2d12", "#f5deb3", "rgba(251, 191, 36, 0.48)"],
+          badge: "REVIEW",
+          title: "Tiny Espresso",
+          subtitle: "compact setup test",
+          html: `
+            <div class="cup" style="right:190px;top:328px"></div>
+            <div class="foam" style="right:185px;top:312px"></div>
+            <div class="bar" style="right:232px;top:144px;width:18px;height:148px;background:rgba(255,255,255,.5)"></div>
+            <div class="bar" style="right:306px;top:118px;width:18px;height:154px;background:rgba(255,255,255,.42)"></div>
+            <div class="bar" style="right:380px;top:156px;width:18px;height:116px;background:rgba(255,255,255,.38)"></div>
+          `
+        },
+        "train-travel": {
+          colors: ["#082f49", "#0369a1", "#a7f3d0", "rgba(186, 230, 253, 0.5)"],
+          badge: "TRAVEL",
+          title: "Window Seat",
+          subtitle: "through the pass",
+          html: `
+            <div class="bar" style="left:0;right:0;bottom:120px;height:80px;background:rgba(255,255,255,.2);border-radius:0"></div>
+            <div class="train" style="right:68px;top:326px"></div>
+            ${Array.from({ length: 5 }, (_, index) => `<div class="window" style="right:${168 + index * 96}px;top:370px"></div>`).join("")}
+            <div class="bar" style="right:0;bottom:86px;width:760px;height:14px;background:#e5e7eb;border-radius:0"></div>
+            <div class="bar" style="right:0;bottom:48px;width:760px;height:14px;background:#e5e7eb;border-radius:0"></div>
+          `
+        },
+        "frontend-build": {
+          colors: ["#111827", "#0f766e", "#38bdf8", "rgba(94, 234, 212, 0.46)"],
+          badge: "CODE",
+          title: "CSS Grid UI",
+          subtitle: "plain HTML build",
+          html: `
+            <div class="code" style="right:104px;top:118px;--line:#5eead4">
+              <div class="circle" style="left:34px;top:28px;width:18px;height:18px;background:#ef4444"></div>
+              <div class="circle" style="left:66px;top:28px;width:18px;height:18px;background:#f59e0b"></div>
+              <div class="circle" style="left:98px;top:28px;width:18px;height:18px;background:#22c55e"></div>
+              <div class="bar" style="top:86px"></div>
+              <div class="bar" style="top:132px;width:260px;background:#93c5fd"></div>
+              <div class="bar" style="top:178px;width:390px;background:#f9a8d4"></div>
+              <div class="bar" style="top:224px;width:300px;background:#fde047"></div>
+            </div>
+          `
+        },
+        "morning-market": {
+          colors: ["#581c87", "#be123c", "#f59e0b", "rgba(253, 224, 71, 0.48)"],
+          badge: "LOCAL",
+          title: "Morning Market",
+          subtitle: "before the rush",
+          html: `
+            <div class="stall" style="right:88px;top:230px"></div>
+            <div class="bar" style="right:92px;top:218px;width:554px;height:38px;background:#fde047;border-radius:18px 18px 0 0"></div>
+            ${Array.from({ length: 6 }, (_, index) => `<div class="circle" style="right:${126 + index * 82}px;top:${404 + (index % 2) * 26}px;width:62px;height:62px;background:${index % 3 === 0 ? "#22c55e" : index % 3 === 1 ? "#ef4444" : "#f97316"}"></div>`).join("")}
+            <div class="bar" style="right:142px;top:316px;width:420px;height:24px;background:rgba(255,255,255,.72)"></div>
+          `
+        }
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id") || "studio-desk";
+      const scene = scenes[id] || scenes["studio-desk"];
+      const root = document.querySelector("#thumb");
+
+      root.style.setProperty("--a", scene.colors[0]);
+      root.style.setProperty("--b", scene.colors[1]);
+      root.style.setProperty("--c", scene.colors[2]);
+      root.style.setProperty("--light", scene.colors[3]);
+      document.querySelector("#badge").textContent = scene.badge;
+      document.querySelector("#title").textContent = scene.title;
+      document.querySelector("#subtitle").textContent = scene.subtitle;
+      document.querySelector("#scene").innerHTML = scene.html;
+    </script>
+  </body>
+</html>
